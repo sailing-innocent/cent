@@ -1,0 +1,9 @@
+test
+build
+__pycache__
+*.exe
+*.obj
+*.pyd
+*.lib
+*.so
+bind
