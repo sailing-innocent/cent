@@ -1,4 +1,5 @@
 import collections
+from random import choice
 
 Card = collections.namedtuple('Card', ['rank', 'suit'])
 
@@ -19,10 +20,17 @@ class FrenchDeck:
         return self._cards[position]
 
 
-beer_card = Card('7', 'diamonds')
-print(beer_card)
+# beer_card = Card('7', 'diamonds')
+# print(beer_card)
 
 deck = FrenchDeck()
-print(len(deck))
 
+# Then you can use it as a common object
+# print(len(deck))
+# print(choice(deck))
+# for card in deck:
+# for card in reversed(deck)
+# if a set haven't realize its own __contains__ method, then it will iterate once to search for it 
+print(Card('Q','hearts') in deck)
     
+# for in in x: x.__iter__() method
