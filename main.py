@@ -1,35 +1,66 @@
-import matplotlib.pyplot as plt
-import numpy as np 
+import csv
+import argparse
+import numpy as np
+import math
+import random
+from sklearn.model_selection import KFold
+csvpath = "D:/workspaces/njudaily/MachineLearning/aqidataset.csv"
 
-quad = lambda x: 3 * x + 1
+# Read data from CSV file and store them into numpy array
+def readdata():
+    data = []
+    with open(csvpath, 'r', encoding='utf8') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            data.append(row)
 
-def LSM(n, xs, ys):
-    sumxy = 0
-    sumx = 0
-    sumy = 0
-    sumxx = 0
+    n = len(data)-1
+    m = len(data[1]) - 2
+
+    clean_data = np.zeros([n,m], dtype=float)
+    # m-2 for x, 1 for y and 1 for id
     for i in range(n):
-        sumx = sumx + xs[i]
-        sumy = sumy + ys[i]
-        sumxy = sumxy + xs[i] * ys[i]
-        sumxx = sumxx + xs[i] * xs[i]
+        x = [float(data[i+1][j]) for j in range(2,m)]
+        x.append(float(data[i+1][1]))
+        x.append(i)
+        clean_data[i] = x
 
-    k = (sumxy - n * sumy)/(sumxx - n * sumx)
-    b = sumy - k * sumx
-    return k,b
+    # print(clean_data)
+
+    return clean_data, n
+
+# class model
+# method train(data,ids)
+# method test(data,ids)
 
 def main():
-    x = np.linspace(0, 5 , 20)
-    sample_y = quad(x) + np.random.randn(20)
-    k, b = LSM(20, x, sample_y)
-    pred = lambda x: k * x + b
-    pred_y = pred(x)
-    print(k,b)
-    fix, ax = plt.subplots()
-    # ax.plot(x,y)
-    ax.scatter(x, sample_y)
-    ax.plot(x, pred_y)
-    plt.show()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--visualize", action="store_true", help="will visualize or not")
+    args = parser.parse_args()
+    # print(args.visualize)
+
+    # data: [328,8+1+1]
+    data, n = readdata()
+    # print(data.shape)
+
+    # seperate test and train data
+
+    folds = 10
+    gap = int(len(data)/folds)
+    batches = 10
+
+    split_list = []
+    kf = KFold(n_splits=10, shuffle=True)
+    i = 0
+    # for trainIDs, testIDs in kf.split(data):
+        # here trainIDs is the list of indicies that will be used for training
+        # and testIDs is similiar
+    
+    print(i)
+    print(folds, gap)
+
+
 
 if __name__ == "__main__":
     main()
+
