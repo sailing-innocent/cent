@@ -50,8 +50,7 @@ def main():
     batches = 10
 
     split_list = []
-    kf = KFold(n_splits=10, shuffle=True)
-    i = 0
+    kf = KFold(n_splits=folds, shuffle=True)
     # for trainIDs, testIDs in kf.split(data):
         # here trainIDs is the list of indicies that will be used for training
         # and testIDs is similiar
