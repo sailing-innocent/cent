@@ -1,17 +1,26 @@
-from mpl_toolkits import mplot3d
 import numpy as np
-import matplotlib.pyplot as plt
-#求向量积(outer()方法又称外积)
-x = np.outer(np.linspace(-2, 2, 30), np.ones(30))
-print(x.shape)
-#矩阵转置
-y = x.copy().T 
-#数据z
-z = np.cos(x ** 2 + y ** 2)
-#绘制曲面图
-fig = plt.figure()
-ax = plt.axes(projection='3d')
-# 调用plot_surface()函数
-ax.plot_surface(x, y, z,cmap='viridis', edgecolor='none')
-ax.set_title('Surface plot')
-plt.show()
+
+items = np.ones([5,3])
+for i in range(5):
+    for j in range(3):
+        items[i][j] = i + j
+        
+print(items)
+
+count = items.shape[0]
+n = items.shape[1]
+sumlist = np.zeros(n)
+
+for i in range(count):
+    item = items[i,:] 
+    for j in range(n):
+        sumlist[j] = sumlist[j] + item[j] 
+
+print(sumlist)
+
+for i in range(count):
+    item = items[i,:]
+    for j in range(n):
+        item[j] = item[j]/sumlist[j] 
+
+print(items)
