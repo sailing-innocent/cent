@@ -17,6 +17,7 @@ set(TESTBED TRUE)
 ###################### DEPS DEFINITION ###########################
 
 set(MAIN_INCLUDES "E:/includes")
+set(MAIN_LIBS "E:/libs")
 
 set(IMGUI_DIR "E:/source/imgui/")
 set(IMGUI_INCLUDE "${IMGUI_DIR}")
@@ -32,6 +33,8 @@ set(LIBSAIL_DIR "D:/repos/sail/build/Debug")
 set(LIBING_INCLUDE "D:/repos/ing/include")
 set(LIBING_DIR "D:/repos/ing/build/Debug")
 
+set(EIGEN_DIR "E:/libs/eigen/")
+set(GLAD_SOURCE "E:/source/glad/glad.c")
 #################################################################
 
 if (${TESTBED})

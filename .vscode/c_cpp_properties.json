@@ -8,7 +8,9 @@
                 "D:/repos/ing/include",
                 "D:/repos/cent/testbed/include",
                 "${workspaceFolder}/testbed/include",
-                "E:/includes"
+                "E:/includes",
+                "E:/libs/eigen",
+                "E:/source/imgui"
             ],
             "defines": [
                 "_DEBUG",

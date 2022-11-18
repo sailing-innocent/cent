@@ -1,0 +1,7 @@
+#pragma once
+#ifndef TESTBED_RENDER_BUFFER_H_
+#define TESTBED_RENDER_BUFFER_H_
+
+
+
+#endif // TESTBED_RENDER_BUFFER_H_

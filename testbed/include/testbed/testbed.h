@@ -5,14 +5,20 @@
 #include <testbed/common.h>
 #include <testbed/shared_queue.h>
 
+struct GLFWwindow;
+
 TESTBED_NAMESPACE_BEGIN
 
+class TriangleOctree;
+class Triangle;
+class TriangleBvh;
+class GLTexture;
 
 // The common interface for Testbed
 class Testbed {
 public:
-    // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    explicit Testbed(ITestBedMode mode);
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    explicit Testbed(ITestbedMode mode);
     virtual ~Testbed();
     // constructor with datapath
     // load_training_data
@@ -48,12 +54,30 @@ public:
     void destroy_window();
     void draw_gui();
     bool frame();
+
     void render();
 
     // load_image
     // MeshState
 
     // struct Nerf
+
+// ----------------------- GUI Relevant Method -------------------------- //
+#ifdef ENABLE_GUI
+    bool begin_frame();
+#endif 
+// ---------------------------------------------------------------------- //
+
+// --------------------------- DATA MEMBER ----------------------------- //
+    Eigen::Vector2i m_window_res = Eigen::Vector2i::Constant(0);
+    ITestbedMode m_testbed_mode;
+    bool m_render_window = true;
+#ifdef ENABLE_GUI
+    GLFWwindow* m_glfw_window = nullptr;
+    bool m_gui_redraw = true;
+    std::vector<std::shared_ptr<GLTexture>> m_render_texture;
+#endif
+// --------------------------------------------------------------------- //
 
 };
 

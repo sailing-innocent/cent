@@ -9,12 +9,17 @@
 #ifndef TESTBED_COMMON_H_
 #define TESTBED_COMMON_H_
 
+#include <Eigen/Dense>
 #define TESTBED_NAMESPACE_BEGIN namespace testbed {
 #define TESTBED_NAMESPACE_END }
 
+
 TESTBED_NAMESPACE_BEGIN
 
-// using Eigen Matrix
+using Vector2i32 = Eigen::Matrix<uint32_t, 2, 1>;
+using Vector3i32 = Eigen::Matrix<uint32_t, 3, 1>;
+using Vector4i16 = Eigen::Matrix<uint16_t, 4, 1>;
+using Vector4i32 = Eigen::Matrix<uint32_t, 4, 1>;
 
 enum class IMeshRenderMode : int {
     Off,
@@ -64,7 +69,7 @@ static constexpr const char* RandomModeStr = "Random\0Halton\0\0";
 // TonemapCurve
 // DLSS Quality
 // 
-enum ITestBedMode {
+enum ITestbedMode {
     RaytraceMesh
     // SpheretraceMesh,
     // SDFBricks,
