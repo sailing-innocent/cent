@@ -52,10 +52,12 @@ public:
     // void imgui();
     void init_window(int resw, int resh, bool hidden=false, bool second_window=false);
     void destroy_window();
-    void draw_gui();
     bool frame();
 
     void render();
+    void redraw_gui_next_frame() {
+        m_gui_redraw = true;
+    }
 
     // load_image
     // MeshState
@@ -65,6 +67,7 @@ public:
 // ----------------------- GUI Relevant Method -------------------------- //
 #ifdef ENABLE_GUI
     bool begin_frame();
+    void draw_gui();
 #endif 
 // ---------------------------------------------------------------------- //
 
@@ -72,9 +75,9 @@ public:
     Eigen::Vector2i m_window_res = Eigen::Vector2i::Constant(0);
     ITestbedMode m_testbed_mode;
     bool m_render_window = true;
+    bool m_gui_redraw = true; // used to redraw gui
 #ifdef ENABLE_GUI
     GLFWwindow* m_glfw_window = nullptr;
-    bool m_gui_redraw = true;
     std::vector<std::shared_ptr<GLTexture>> m_render_texture;
 #endif
 // --------------------------------------------------------------------- //

@@ -100,7 +100,7 @@ void Testbed::init_window(int resw, int resh, bool hidden, bool second_window)
 void Testbed::destroy_window()
 {
 #ifndef ENABLE_GUI
-    throw std::runtime_error("destroy_window failed: TESTBED was built without GUI")
+    throw std::runtime_error("destroy_window failed: TESTBED was built without GUI");
 #else
     if (!m_render_window) {
         throw std::runtime_error("Window must be init to be destroyed");
@@ -131,6 +131,7 @@ bool Testbed::frame()
     }
 #endif
 
+    redraw_gui_next_frame();
     // clear the exsiting tasks and prepare data
     try {
 
@@ -141,7 +142,9 @@ bool Testbed::frame()
 #ifdef ENABLE_GUI
     if (m_render_window) {
         if (m_gui_redraw) {
-            // draw_gui
+            // gather_histograms()
+            draw_gui();
+            m_gui_redraw = false;
         }
 
         ImGui::EndFrame();
@@ -185,14 +188,26 @@ bool Testbed::begin_frame()
 
 void Testbed::draw_gui()
 {
-    // glfwMakeContextCurrent
-    // get frame buffer size
-    // viewport
+    // make sure all the cuda code finishes 
+    // if render_textures not empty, m_second_window.draw(->texture)
 
+    glfwMakeContextCurrent(m_glfw_window);
+    int display_w, display_h;
+    glfwGetFramebufferSize(m_glfw_window, &display_w, &display_h);
+    glViewport(0, 0, display_w, display_h);
+    glClearColor(0.f, 0.f, 0.f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    ImDrawList* list = ImGui::GetBackgroundDrawList();
+    // list->AddImageQuad(()
     // ImDrawList = ImGui::GetBackgroundDrawList();
     // list->AddCallabke()
     // list->AddImageQuad((ImTextureID)(size_t)m_render_texture.front()->texture(), 00,w0,wh,0h, 00, 10, 11, 01)
-    // That's all...
+    list->AddText(ImVec2(4.f, 4.f), 0xffffffff, "Ground Truth");
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    glfwSwapBuffers(m_glfw_window);
+    glFinish();
 }
 
 #endif
