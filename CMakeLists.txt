@@ -8,8 +8,8 @@ set(BUILD_SHARED_LIBS OFF)
 
 ######################## BUILD TARGETS ###########################
 
-set(TESTBED TRUE)
-
+set(TESTBED FALSE)
+set(VISBED TRUE)
 
 ##################################################################
 
@@ -38,5 +38,9 @@ set(GLAD_SOURCE "E:/source/glad/glad.c")
 #################################################################
 
 if (${TESTBED})
-add_subdirectory(testbed)
+    add_subdirectory(testbed)
+endif()
+
+if (${VISBED})
+    add_subdirectory(visbed)
 endif()
