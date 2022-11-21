@@ -24,6 +24,7 @@ list(APPEND CURVE_FIT_INCLUDES
     ${LIBSAIL_INCLUDE}
     ${LIBING_INCLUDE}
     "E:/includes"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/"
 )
 
 target_include_directories(${TARGET_NAME} PUBLIC ${CURVE_FIT_INCLUDES})
