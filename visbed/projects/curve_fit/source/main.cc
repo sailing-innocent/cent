@@ -14,7 +14,15 @@ float disp(float d, float d_min, float d_max, float display_min = -0.8f, float d
     return (d - d_min) * (display_max - display_min)/(d_max - d_min) + display_min; 
 }
 
-void drawFn(ing::GLCommonApp& app, std::function<float(float)> fn, float x_min, float x_max, float y_min, float y_max)
+void drawFn(
+    ing::GLCommonApp& app,
+    std::function<float(float)> fn, 
+    float x_min = -1.0f, 
+    float x_max = 1.0f, 
+    float y_min = -1.0f, 
+    float y_max = 1.0f,
+    std::vector<float> color = { 0.0f, 1.0f, 0.0f, 1.0f}
+)
 {
     size_t N = 100;
     float start = x_min;
@@ -28,11 +36,13 @@ void drawFn(ing::GLCommonApp& app, std::function<float(float)> fn, float x_min, 
     float y_disp = disp(fn(data[0]), y_min, y_max);
     float x_disp = disp(data[0], x_min, x_max);
     ing::GLPoint startPoint(x_disp, y_disp);
+    startPoint.setColor(color);
     ing::GLPoint prevPoint = startPoint;
     for (auto i = 1; i < N; i++) {
         y_disp = disp(fn(data[i]), y_min, y_max);
         x_disp = disp(data[i], x_min, x_max);
         ing::GLPoint point(x_disp, y_disp);
+        point.setColor(color);
         ing::GLLine line(prevPoint, point);
         // std::cout << point.vertices()[0] << "," << data[i] << std::endl;
         app.addLines(line);
@@ -70,33 +80,46 @@ int main()
     drawAxis(app);
 
     // sampling
-    size_t sample_N = 10;
+    size_t sample_N = 20;
     float sample_x_min = 0.0f;
     float sample_x_max = 1.0f;
     std::vector<float> samples_x;
     std::vector<float> samples_y;
+    std::vector<float> yellow = { 1.0f, 1.0f, 0.0f, 1.0f };
     for (auto i = 0; i < sample_N; i++) {
         float sample_x = sample_x_min + (sample_x_max - sample_x_min) * u(e);
         float sample_y = f(sample_x) + u(e) * 0.2 -0.1;
         samples_x.push_back(sample_x);
         samples_y.push_back(sample_y);
-
         float disp_x = disp(sample_x,-1.0, 1.0);
         float disp_y = disp(sample_y,-1.0, 1.0);
         ing::GLPoint sample_p(disp_x, disp_y);
-        std::vector<float> yellow = { 1.0f, 1.0f, 0.0f, 1.0f };
+
         sample_p.setColor(yellow);
         // std::cout << sample_p.vertices()[0] << "," << sample_p.vertices()[1] << std::endl;
         app.addPoints(sample_p);
     }
 
     // modeling
+    const int M = 5;
+    Polynomial poly(M);
+    drawFn(app, poly, -1.0, 1.0, -1.0, 1.0, yellow);
 
-    Polynomial poly(5);
+    const int nsteps = 10000;
+    const float alpha = 0.01;
 
-    // std::cout << poly.forward(2) << std::endl;
+    for (auto s = 0; s < nsteps; s++) {
 
-    drawFn(app, poly, -1.0, 1.0, -1.0, 1.0);
+        std::vector<float> derivate = poly.ESM_dir(samples_x, samples_y, sample_N);
+        for (auto i = 0; i <= M; i++) {
+            poly.setParam(i, poly.params()[i] - alpha * derivate[i]);
+        }
+        if (s % 100 == 0) {
+            std::vector<float> fcolor = {0.0f, 0.0f, 1.0f/nsteps*s, 1.0f};
+            drawFn(app, poly, -1.0, 1.0, -1.0, 1.0, fcolor);
+        }
+
+    }
 
     app.init();
     size_t count;
