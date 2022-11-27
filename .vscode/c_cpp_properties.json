@@ -10,7 +10,8 @@
                 "${workspaceFolder}/testbed/include",
                 "E:/includes",
                 "E:/libs/eigen",
-                "E:/source/imgui"
+                "E:/source/imgui",
+                "E:/sdk/Vulkan/Include"
             ],
             "defines": [
                 "_DEBUG",
