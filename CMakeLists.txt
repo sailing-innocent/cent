@@ -8,7 +8,6 @@ set(BUILD_SHARED_LIBS OFF)
 
 ######################## BUILD TARGETS ###########################
 
-set(TESTBED FALSE)
 set(VISBED TRUE)
 
 ##################################################################
@@ -36,11 +35,6 @@ set(LIBING_DIR "D:/repos/ing/build/Debug")
 set(EIGEN_DIR "E:/libs/eigen/")
 set(GLAD_SOURCE "E:/source/glad/glad.c")
 #################################################################
-
-if (${TESTBED})
-    add_subdirectory(testbed)
-endif()
-
 if (${VISBED})
     add_subdirectory(visbed)
 endif()
