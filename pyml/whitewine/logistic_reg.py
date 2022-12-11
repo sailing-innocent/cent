@@ -100,5 +100,5 @@ if __name__ == "__main__":
     x, y = gen_data(N, K)
     theta = logistic_regression(x, y, K)
     test(x,y,theta)
-    # debug(x,y)
+    debug(x,y)
 
