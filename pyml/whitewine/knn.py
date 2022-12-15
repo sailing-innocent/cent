@@ -12,6 +12,10 @@ def distance(x, y, p = 2):
             res = res + (x[i] - y[i])**2
         return np.sqrt(res)
 
+def find_k_nearest(x_samples, x_test, k = 3):
+    pass
+
+
 def knn(x_samples, y_samples, x_test, k = 3):
     N = x_samples.shape[0]
     catedict = dict()

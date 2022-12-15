@@ -6,7 +6,7 @@ def gen_samples():
     return [[2,3],[5,4],[6,6],[4,7],[8,1],[7,2],[8,5],[8,3]],[0,0,0,0,1, 1,1,1]
 
 def gen_kdtree_samples():
-     return [[2,3,0],[5,4,0],[6,6,0],[4,7,0],[8,1,1],[7,2,1],[8,5,1],[8,3,1]]
+     return [[0,2,3,0],[1,5,4,0],[2,6,6,0],[3,4,7,0],[4,8,1,1],[5,7,2,1],[6,8,5,1],[7,8,3,1]]
 
 
 def test_distance():
@@ -52,7 +52,14 @@ def debug_knn(x_samples, y_samples, x, y):
     plt.show()
 
 def debug_kdknn(kdtree):
-    pass
+    print("++++++++++++++++++++ CHECKING KDTREE ++++++++++++++++ ")
+    # print(kdtree)
+    # print(kdtree.leftChild)
+    # print(kdtree.rightChild)
+    # print(kdtree.rightChild.parent)
+    fix, ax = plt.subplots()
+    kdtree.debugTree(ax)
+    plt.show()
 
 def utest():
     print("unit testing")
@@ -63,21 +70,12 @@ def utest():
     debug_knn(x_samples, y_samples, x_test, label)
     """
     x_samples = gen_kdtree_samples()
-    kdtree = KDTree(x_samples)
-    print("++++++++++++++++++++ CHECKING KDTREE ++++++++++++++++ ")
-    """
-    print(kdtree)
-    print(kdtree.leftChild)
-    print(kdtree.rightChild)
-    print(kdtree.rightChild.parent)
-    """
-    fix, ax = plt.subplots()
-    kdtree.debugTree(ax)
-    plt.show()
-
-    # kdtree = kdtree(x_samples, y_samples)
-
+    x_test = [4,5]
+    print(kdknn(x_samples, x_test))
+    # x_samples = gen_kdtree_samples()
+    # kdtree = KDTree(x_samples)
+    # debug_kdknn(kdtree)
 
 if __name__ == "__main__":
     utest()
-    
+
