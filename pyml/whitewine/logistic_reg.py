@@ -42,21 +42,22 @@ def logistic_regression(x_samples, y_samples, K):
     D = x_samples.shape[1]
     theta = np.zeros([K,D], dtype=float)
     alpha = 0.001
-    nsteps = 1000
+    nsteps = 100
     for step in range(nsteps):
         # calculate derivative
         for l in range(K):
             deri = 0
             for i in range(N):
-                deri = deri + (- x[i]*(sign(y[i], l) - softmax(l, x[i], theta)))
+                deri = deri + (- x_samples[i]*(sign(y_samples[i], l) - softmax(l, x_samples[i], theta)))
             theta[l] = theta[l] - alpha * deri
             # print(theta)
-        # print("deri: ", deri)
+        if (step % 10 == 0):
+            print("step: ", step, "\n deri: ", deri)
     
     return theta
 
 
-def predict(xstar, theta):
+def lreg_predict(xstar, theta):
     K = theta.shape[0]
     pmax = 0
     kmax = -1
