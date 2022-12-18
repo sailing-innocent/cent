@@ -4,6 +4,12 @@ import math
 import random
 import matplotlib.pyplot as plt
 
+def qsum(x):
+    xsum = 0
+    for xi in x:
+        xsum = xsum + xi * xi
+    return xsum
+
 # theta: numpy.matrix() K * N
 def softmax(k, x, theta):
     K = theta.shape[0]
@@ -12,7 +18,7 @@ def softmax(k, x, theta):
     for j in range(K):
         s = s + math.exp(np.matmul(theta[j].transpose(), x))
     i = math.exp(np.matmul(theta[k].transpose(), x))
-    return i / s
+    return i / (s + 0.0001) # prevent the rare div0 error 
 
 def sign(x, i):
     if (x == i):
@@ -41,8 +47,8 @@ def logistic_regression(x_samples, y_samples, K):
     N = x_samples.shape[0]
     D = x_samples.shape[1]
     theta = np.zeros([K,D], dtype=float)
-    alpha = 0.001
-    nsteps = 100
+    alpha = 0.002
+    nsteps = 2000
     for step in range(nsteps):
         # calculate derivative
         for l in range(K):
@@ -51,10 +57,43 @@ def logistic_regression(x_samples, y_samples, K):
                 deri = deri + (- x_samples[i]*(sign(y_samples[i], l) - softmax(l, x_samples[i], theta)))
             theta[l] = theta[l] - alpha * deri
             # print(theta)
-        if (step % 10 == 0):
+        if (step % 100 == 0):
             print("step: ", step, "\n deri: ", deri)
+
+        willBreak = True
+        for de in deri:
+            if de > 0.03 or de < -0.03:
+                willBreak = False
+        if willBreak:
+            break
     
-    return theta
+    return theta, step
+
+def logistic_regression_regu(x_samples, y_samples, K, lam):
+    N = x_samples.shape[0]
+    D = x_samples.shape[1]
+    theta = np.zeros([K,D], dtype=float)
+    alpha = 0.002
+    nsteps = 2000
+    for step in range(nsteps):
+        # calculate derivative
+        for l in range(K):
+            deri = 0
+            for i in range(N):
+                deri = deri + (- x_samples[i]*(sign(y_samples[i], l) - softmax(l, x_samples[i], theta)))
+            theta[l] = theta[l] - alpha * ( deri - lam * theta[l])
+            # print(theta)
+        if (step % 100 == 0):
+            print("step: ", step, "\n deri: ", deri)
+
+        willBreak = True
+        for de in deri:
+            if de > 0.03 or de < -0.03:
+                willBreak = False
+        if willBreak:
+            break
+    
+    return theta, step
 
 
 def lreg_predict(xstar, theta):

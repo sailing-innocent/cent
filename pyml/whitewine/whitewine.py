@@ -63,9 +63,9 @@ def read_dataset(csvpath, limit = 0):
     ## 6  ## total sulfur dioxide  ## 170
     ## 7  ## density               ## 1.001
     ## 8  ## pH                    ## 3
-    ## 9  ## pH                    ## 0.45
-    ## 10  ## Coastal              ## 8.8
-    ## 11 ## Green CoverageRate    ## 6
+    ## 9  ## sulphates             ## 0.45
+    ## 10 ## alcohol               ## 8.8
+    ## 11 ## quality               ## 6
     ####################################################
     with open(csvpath, 'r') as csvf:
         reader = csv.reader(csvf, delimiter=';')
@@ -109,30 +109,86 @@ def test_1(x_test, y_truth, theta):
     # print("Success Rate: ", res/N)
     return res/N
 
-def experiment_1(x, y):
-    K = 10
-    n_folds = 5
-    kf = KFold(n_splits=n_folds, shuffle=True)
-    Dx = x.shape[1]
-    Dy = y.shape[1]
-    N = x.shape[0]
+def postprocess(Ns, msrs, mstbs):
+    fig = plt.figure()
+    ax = plt.subplot(121)
+    ax.scatter(Ns, msrs)
+    ax = plt.subplot(122)
+    ax.scatter(Ns, mstbs)
+    plt.show()
 
-    msr = 0
+def pickSecond(elem):
+    return elem[1]
 
-    for trainIDs, testIDs in kf.split(x):
-        NTrain = trainIDs.shape[0]
-        NTest = testIDs.shape[0]
-        x_train = np.array([x[i,:] for i in trainIDs]).reshape(NTrain, Dx)
-        y_train = np.array([y[i,:] for i in trainIDs]).reshape(NTrain, Dy)
-        x_test = np.array([x[i] for i in trainIDs]) #.reshape(NTest, Dx)
-        y_test = np.array([y[i] for i in trainIDs]) #.reshape(NTest, Dy)
-        # predicted theta and loss
-        theta = logistic_regression(x_train, y_train, K)
-        # print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        sr = test_1(x_test, y_test, theta)
-        msr = msr + sr
+def get_most_important_factor(theta):
+    theta = list(theta.transpose())
+    M = 3 # most influencial 3 factors
+    maxheap = []
+    for i, val in enumerate(theta):
+        dis = qsum(val)
+        if (i < M):
+            maxheap.append([i, dis])
+            maxheap.sort(key=pickSecond)
+        else:
+            if dis > maxheap[0][1]:
+                maxheap[0] = [i, dis]
+                maxheap.sort(key=pickSecond)
+    return maxheap
 
-    print(msr/n_folds)
+def experiment_1():
+    N0 = 100
+    NStride = 4000
+    msrs = []
+    mstbs = []
+    Ns = []
+
+    for i in range(2):
+        N = N0 + i * NStride
+        print("IS Training with ", N, " Samples")
+        Ns.append(N)
+        x, y = read_dataset(dataset_path, N)
+        x = preprocess(x)
+        # debug_data(x,y)
+        # check_labels(y) # 3,4,5,6,7,8,9
+
+        K = 10
+        n_folds = 5
+        kf = KFold(n_splits=n_folds, shuffle=True)
+        Dx = x.shape[1]
+        Dy = y.shape[1]
+        N = x.shape[0]
+
+        msr = 0
+        mstb = 0
+
+        for trainIDs, testIDs in kf.split(x):
+            NTrain = trainIDs.shape[0]
+            NTest = testIDs.shape[0]
+            x_train = np.array([x[i,:] for i in trainIDs]).reshape(NTrain, Dx)
+            y_train = np.array([y[i,:] for i in trainIDs]).reshape(NTrain, Dy)
+            x_test = np.array([x[i] for i in trainIDs]) #.reshape(NTest, Dx)
+            y_test = np.array([y[i] for i in trainIDs]) #.reshape(NTest, Dy)
+            # predicted theta and loss
+            theta, step = logistic_regression(x_train, y_train, K)
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("current theta: ", theta)
+            sr = test_1(x_test, y_test, theta)
+            msr = msr + sr
+            mstb = mstb + step
+
+
+        msr = msr/n_folds
+        mstb = mstb/n_folds
+        print("success rate: ", msr)
+        print("mean converge steps: ", mstb)
+        msrs.append(msr)
+        mstbs.append(mstb)
+    
+    most_important_factors = get_most_important_factor(theta)
+    print(most_important_factors)
+    postprocess(Ns, msrs, mstbs)
+    
+
 
 def check_labels(y):
     labels = dict()
@@ -140,9 +196,13 @@ def check_labels(y):
         labels[str(iy[0])] = 1
     print(labels)    
 
+def debug_data(x, y):
+    fix, ax = plt.subplots()
+    colors = []
+    for iy in y:
+        colors.append([0.2, iy/10, 0.2])
+    ax.scatter(x[:,9], x[:,10], c=colors)
+    plt.show()
 
 if __name__ == "__main__":
-    x, y = read_dataset(dataset_path, -1)
-    x = preprocess(x)
-    # check_labels(y) # 3,4,5,6,7,8,9
-    # experiment_1(x,y)
+    experiment_1()
