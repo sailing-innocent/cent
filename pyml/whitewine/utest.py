@@ -28,21 +28,21 @@ def debug_kdtree(kdt, ax):
     )
 
 def debug_samples(ax, x, y):
-    N = x.shape[0]
+    N = len(x)
     dbgx = []
     dbgy = []
     dbgc = []
     for i in range(N):
         dbgx.append(x[i][0])
         dbgy.append(x[i][1])
-        dbgc.append([0.0, y[i] * 0.8, 0.6])
+        dbgc.append([0.0, y[i] * 0.4 + 0.4, 0.5])
     ax.scatter(dbgx, dbgy, c = dbgc)
 
 def debug_tests(ax, x, y):
     
     dbgx = [x[0]]
     dbgy = [x[1]]
-    dbgc = [[float(y)*0.8, 0.0, 0.2]]
+    dbgc = [[0.0, float(y)*1.0, 0.5]]
     ax.scatter(dbgx, dbgy, c = dbgc)
 
 def debug_knn(x_samples, y_samples, x, y):
@@ -63,18 +63,20 @@ def debug_kdknn(kdtree):
 
 def utest():
     print("unit testing")
-    """Simple KNN
     x_samples, y_samples = gen_samples()
     x_test = np.array([5, 7])
+    # x_test = np.array([6, 3])
     label = knn(x_samples, y_samples, x_test)
     debug_knn(x_samples, y_samples, x_test, label)
-    """
+
+    """KDKNN
     x_samples = gen_kdtree_samples()
     x_test = [4,5]
     print(kdknn(x_samples, x_test))
     # x_samples = gen_kdtree_samples()
     # kdtree = KDTree(x_samples)
     # debug_kdknn(kdtree)
+    """
 
 if __name__ == "__main__":
     utest()

@@ -3,10 +3,12 @@ import matplotlib.pyplot as plt
 import csv 
 import math
 import random
+import time
 
 from sklearn.model_selection import KFold
 
 from logistic_reg import * 
+from knn import knn
 
 dataset_path = "E:/data/datasets/winequality-white/winequality-white.csv"
 
@@ -108,7 +110,7 @@ def test_1(x_test, y_truth, theta):
     # print("Success Rate: ", res/N)
     return res/N
 
-def postprocess(Ns, msrs, mstbs, lams):
+def postprocess_1(Ns, msrs, mstbs, lams):
     fig = plt.figure()
     ax = plt.subplot(121)
     print("msrs: ", msrs)
@@ -176,8 +178,8 @@ def experiment_1():
             NTest = testIDs.shape[0]
             x_train = np.array([x[i,:] for i in trainIDs]).reshape(NTrain, Dx)
             y_train = np.array([y[i,:] for i in trainIDs]).reshape(NTrain, Dy)
-            x_test = np.array([x[i] for i in trainIDs]) #.reshape(NTest, Dx)
-            y_test = np.array([y[i] for i in trainIDs]) #.reshape(NTest, Dy)
+            x_test = np.array([x[i] for i in testIDs]).reshape(NTest, Dx)
+            y_test = np.array([y[i] for i in testIDs]).reshape(NTest, Dy)
             # predicted theta and loss
             for i, lam in enumerate(lams):
                 theta, step = logistic_regression_regu(x_train, y_train, K, lam)
@@ -191,9 +193,60 @@ def experiment_1():
     
     # most_important_factors = get_most_important_factor(theta)
     # print(most_important_factors)
-    postprocess(Ns, msrs, mstbs, lams)
-    
+    postprocess_1(Ns, msrs, mstbs, lams)
 
+def postprocess_2(Ns, msrs, mtimes):
+    print("Mean Success Rate: ", msrs)
+    print("Mean Execution Time: ", mtimes)
+
+def experiment_2():
+    N0 = 100
+    NStride = 500
+    msrs = []
+    mtimes = []
+    Ns = []
+    ks = [1, 3, 7]
+    # ks = [1, 3, 5, 15, 29, 61]
+
+    for i in range(2):
+        N = N0 + i * NStride
+        print("IS Training with ", N, " Samples")
+        Ns.append(N)
+        x, y = read_dataset(dataset_path, N)
+        x = preprocess(x)
+        K = 10
+        n_folds = 5
+        kf = KFold(n_splits=n_folds, shuffle=True)
+        Dx = x.shape[1]
+        Dy = y.shape[1]
+        N = x.shape[0]
+        msr_per_k = [0 for _ in ks] # mean success rate
+        mtime_per_k = [0.0 for _ in ks] # mean execution time
+        for trainIDs, testIDs in kf.split(x):
+            NTrain = trainIDs.shape[0]
+            NTest = testIDs.shape[0]
+            x_train = np.array([x[i,:] for i in trainIDs]).reshape(NTrain, Dx)
+            y_train = np.array([y[i,:] for i in trainIDs]).reshape(NTrain, Dy)
+            x_test = np.array([x[i] for i in testIDs]) #.reshape(NTest, Dx)
+            y_test = np.array([y[i] for i in testIDs]) #.reshape(NTest, Dy)
+            # predicted theta and loss
+            res = 0
+            for idx, k in enumerate(ks):
+                for i in range(len(x_test)):
+                    starttime = time.time()
+                    y_pred = knn(x_train, y_train, x_test[i], k)
+                    mtime_per_k[idx] =  mtime_per_k[idx] + (time.time() - starttime)/len(x_test)
+                    # print(y_pred, y_test[i][0])
+                    res = res + sign(int(y_test[i][0]), int(y_pred))
+                sr = res / len(x_test)
+                msr_per_k[idx] = msr_per_k[idx] + sr/n_folds/len(ks)
+        
+        for idx in range(len(ks)):
+            mtime_per_k[idx] = mtime_per_k[idx]/n_folds
+        mtimes.append(mtime_per_k)
+        msrs.append(msr_per_k)
+
+    postprocess_2(Ns, msrs, mtimes)
 
 def check_labels(y):
     labels = dict()
@@ -210,4 +263,5 @@ def debug_data(x, y):
     plt.show()
 
 if __name__ == "__main__":
-    experiment_1()
+    # experiment_1()
+    experiment_2()
