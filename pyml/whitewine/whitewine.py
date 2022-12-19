@@ -9,6 +9,7 @@ from sklearn.model_selection import KFold
 
 from logistic_reg import * 
 from knn import knn
+from kdtree import kdknn, KDTree
 
 dataset_path = "E:/data/datasets/winequality-white/winequality-white.csv"
 
@@ -195,20 +196,41 @@ def experiment_1():
     # print(most_important_factors)
     postprocess_1(Ns, msrs, mstbs, lams)
 
-def postprocess_2(Ns, msrs, mtimes):
-    print("Mean Success Rate: ", msrs)
-    print("Mean Execution Time: ", mtimes)
+def postprocess_2(Ns, ks, msrs, mtimes, kdmtimes):
+    # print("Testing Ks: ", ks)
+    # print("Mean Success Rate: ", msrs)
+    # print("Mean Execution Time: ", mtimes)
+
+    fig = plt.figure()
+    ax = plt.subplot(121)
+    for i in range(len(ks)):
+        msr = np.array(msrs)[:,i]
+        ax.plot(Ns, msr, color=[1.0 - 0.1 * i , 0.1 * i + 0.2, 0.1 * i + 0.1])
+    plt.ylabel('mean success rate')
+    plt.xlabel('N samples')
+    plt.legend(['K = ' + str(k) for k in ks])
+    ax = plt.subplot(122)
+    for i in range(len(ks)):
+        mtime = np.array(mtimes)[:,i]
+        kdmtime = np.array(kdmtimes)[:,i]
+        ax.plot(Ns, mtime,  color=[1.0 - 0.1 * i , 0.1 * i + 0.2, 0.1 * i + 0.1])
+        ax.plot(Ns, kdmtime,  color=[0.1 * i + 0.2, 1.0 - 0.1 * i , 0.1 * i + 0.1])
+    plt.ylabel('mean execution time')
+    plt.xlabel('N samples')
+    # plt.savefig("./result2.png")
+    plt.show()
 
 def experiment_2():
     N0 = 100
-    NStride = 2000
+    NStride = 400
     msrs = []
     mtimes = []
+    kdmtimes = []
     Ns = []
-    ks = [1, 3, 7, 17, 39]
-    # ks = [1, 3, 5, 15, 29, 61]
+    ks = [1, 3, 5, 7, 9, 11, 17, 29]
+    # ks = [1, 3]
 
-    for i in range(2):
+    for i in range(5):
         N = N0 + i * NStride
         print("IS Training with ", N, " Samples")
         Ns.append(N)
@@ -222,6 +244,7 @@ def experiment_2():
         N = x.shape[0]
         msr_per_k = [0 for _ in ks] # mean success rate
         mtime_per_k = [0.0 for _ in ks] # mean execution time
+        kdmtime_per_k = [0.0 for _ in ks] # mean execution time for kd tree
         for trainIDs, testIDs in kf.split(x):
             NTrain = trainIDs.shape[0]
             NTest = testIDs.shape[0]
@@ -230,12 +253,20 @@ def experiment_2():
             x_test = np.array([x[i] for i in testIDs]) #.reshape(NTest, Dx)
             y_test = np.array([y[i] for i in testIDs]) #.reshape(NTest, Dy)
             # predicted theta and loss
+            x_samples_kd = x_train.tolist()
+            x_test_kd = x_test.tolist()
+            for i, x_sample_kd in enumerate(x_samples_kd):
+                x_sample_kd.append(i)
+            kdtree = KDTree(x_samples_kd)
             for idx, k in enumerate(ks):
                 res = 0
                 for i in range(len(x_test)):
                     starttime = time.time()
                     y_pred = knn(x_train, y_train, x_test[i], k)
                     mtime_per_k[idx] =  mtime_per_k[idx] + (time.time() - starttime)/len(x_test)
+                    starttime_kd = time.time()
+                    kdknn(kdtree, y_train, x_test[i], k)
+                    kdmtime_per_k[idx] = kdmtime_per_k[idx] + (time.time() - starttime_kd)/len(x_test)
                     # print(y_pred, y_test[i][0])
                     res = res + sign(int(y_test[i][0]), int(y_pred))
                 sr = res / len(x_test)
@@ -243,10 +274,15 @@ def experiment_2():
         
         for idx in range(len(ks)):
             mtime_per_k[idx] = mtime_per_k[idx]/n_folds
+            kdmtime_per_k[idx] = kdmtime_per_k[idx]/n_folds
+        
         mtimes.append(mtime_per_k)
+        kdmtimes.append(kdmtime_per_k)
         msrs.append(msr_per_k)
 
-    postprocess_2(Ns, msrs, mtimes)
+    print(mtimes)
+    print(kdmtimes)
+    postprocess_2(Ns, ks, msrs, mtimes, kdmtimes)
 
 def check_labels(y):
     labels = dict()
