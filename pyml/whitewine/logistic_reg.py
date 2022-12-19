@@ -47,7 +47,7 @@ def logistic_regression(x_samples, y_samples, K):
     N = x_samples.shape[0]
     D = x_samples.shape[1]
     theta = np.zeros([K,D], dtype=float)
-    alpha = 0.002
+    alpha = 0.01
     nsteps = 2000
     for step in range(nsteps):
         # calculate derivative
@@ -69,11 +69,11 @@ def logistic_regression(x_samples, y_samples, K):
     
     return theta, step
 
-def logistic_regression_regu(x_samples, y_samples, K, lam):
+def logistic_regression_regu(x_samples, y_samples, K, lam = 0.1):
     N = x_samples.shape[0]
     D = x_samples.shape[1]
     theta = np.zeros([K,D], dtype=float)
-    alpha = 0.002
+    alpha = 0.005
     nsteps = 2000
     for step in range(nsteps):
         # calculate derivative
@@ -81,14 +81,14 @@ def logistic_regression_regu(x_samples, y_samples, K, lam):
             deri = 0
             for i in range(N):
                 deri = deri + (- x_samples[i]*(sign(y_samples[i], l) - softmax(l, x_samples[i], theta)))
-            theta[l] = theta[l] - alpha * ( deri - lam * theta[l])
+            theta[l] = theta[l] - alpha * ( deri + lam * theta[l])
             # print(theta)
         if (step % 100 == 0):
             print("step: ", step, "\n deri: ", deri)
 
         willBreak = True
         for de in deri:
-            if de > 0.03 or de < -0.03:
+            if de > 0.05 or de < -0.05:
                 willBreak = False
         if willBreak:
             break

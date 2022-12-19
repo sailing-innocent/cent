@@ -19,8 +19,7 @@ dataset_path = "E:/data/datasets/winequality-white/winequality-white.csv"
 
 # @name: preprocess
 # @input:
-#   - data: the data to be preprocess
-#   - flag: the method flag, 0 for min-max, 1 for mean, 2 for normalize
+#   - items: the item to be preprocess
 def preprocess(items):
     # print(items)
     count = items.shape[0]
@@ -109,13 +108,27 @@ def test_1(x_test, y_truth, theta):
     # print("Success Rate: ", res/N)
     return res/N
 
-def postprocess(Ns, msrs, mstbs):
+def postprocess(Ns, msrs, mstbs, lams):
     fig = plt.figure()
     ax = plt.subplot(121)
-    ax.scatter(Ns, msrs)
+    print("msrs: ", msrs)
+    print("msr: ", np.array(msrs)[:, 0])
+    for i in range(len(lams)):
+        msr = np.array(msrs)[:,i]
+
+        ax.plot(Ns, msr, color=[0.2, 0.2 * i, 0.1 * i + 0.1])
+    plt.ylabel('mean success rate')
+    plt.xlabel('N samples')
+    plt.legend([str(lam) for lam in lams])
     ax = plt.subplot(122)
-    ax.scatter(Ns, mstbs)
-    plt.show()
+    for i in range(len(lams)):
+        mstb = np.array(mstbs)[:,i]
+        ax.plot(Ns, mstb, color=[0.2, 0.2 * i, 0.1 * i + 0.1])
+    plt.ylabel('mean converge steps')
+    plt.xlabel('N samples')
+    plt.legend([str(lam) for lam in lams])
+    # plt.show()
+    plt.savefig("./result.png")
 
 def pickSecond(elem):
     return elem[1]
@@ -137,29 +150,26 @@ def get_most_important_factor(theta):
 
 def experiment_1():
     N0 = 100
-    NStride = 4000
+    NStride = 100
     msrs = []
     mstbs = []
     Ns = []
+    lams = [0, 0.1, 0.2]
 
-    for i in range(2):
+    for i in range(3):
         N = N0 + i * NStride
         print("IS Training with ", N, " Samples")
         Ns.append(N)
         x, y = read_dataset(dataset_path, N)
         x = preprocess(x)
-        # debug_data(x,y)
-        # check_labels(y) # 3,4,5,6,7,8,9
-
         K = 10
         n_folds = 5
         kf = KFold(n_splits=n_folds, shuffle=True)
         Dx = x.shape[1]
         Dy = y.shape[1]
         N = x.shape[0]
-
-        msr = 0
-        mstb = 0
+        msr_p_lam = [0 for _ in lams] # mean success rate
+        mstb_p_lam = [0 for _ in lams] # mean step bounds
 
         for trainIDs, testIDs in kf.split(x):
             NTrain = trainIDs.shape[0]
@@ -169,24 +179,19 @@ def experiment_1():
             x_test = np.array([x[i] for i in trainIDs]) #.reshape(NTest, Dx)
             y_test = np.array([y[i] for i in trainIDs]) #.reshape(NTest, Dy)
             # predicted theta and loss
-            theta, step = logistic_regression(x_train, y_train, K)
-            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-            print("current theta: ", theta)
-            sr = test_1(x_test, y_test, theta)
-            msr = msr + sr
-            mstb = mstb + step
+            for i, lam in enumerate(lams):
+                theta, step = logistic_regression_regu(x_train, y_train, K, lam)
+                sr = test_1(x_test, y_test, theta)
+                msr_p_lam[i] = msr_p_lam[i] + sr/n_folds
+                mstb_p_lam[i] = mstb_p_lam[i] + step/n_folds
+        
+        msrs.append(msr_p_lam)
+        mstbs.append(mstb_p_lam)
 
-
-        msr = msr/n_folds
-        mstb = mstb/n_folds
-        print("success rate: ", msr)
-        print("mean converge steps: ", mstb)
-        msrs.append(msr)
-        mstbs.append(mstb)
     
-    most_important_factors = get_most_important_factor(theta)
-    print(most_important_factors)
-    postprocess(Ns, msrs, mstbs)
+    # most_important_factors = get_most_important_factor(theta)
+    # print(most_important_factors)
+    postprocess(Ns, msrs, mstbs, lams)
     
 
 
