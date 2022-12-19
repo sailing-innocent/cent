@@ -14,7 +14,6 @@ def distance(x, y, p = 2):
 def pickSecond(elem):
     return elem[1]
 
-
 def find_k_nearest(x_samples, x_test, k = 3):
     k_nearest = []
     N = len(x_samples)

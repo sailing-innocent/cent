@@ -201,11 +201,11 @@ def postprocess_2(Ns, msrs, mtimes):
 
 def experiment_2():
     N0 = 100
-    NStride = 500
+    NStride = 2000
     msrs = []
     mtimes = []
     Ns = []
-    ks = [1, 3, 7]
+    ks = [1, 3, 7, 17, 39]
     # ks = [1, 3, 5, 15, 29, 61]
 
     for i in range(2):
@@ -230,8 +230,8 @@ def experiment_2():
             x_test = np.array([x[i] for i in testIDs]) #.reshape(NTest, Dx)
             y_test = np.array([y[i] for i in testIDs]) #.reshape(NTest, Dy)
             # predicted theta and loss
-            res = 0
             for idx, k in enumerate(ks):
+                res = 0
                 for i in range(len(x_test)):
                     starttime = time.time()
                     y_pred = knn(x_train, y_train, x_test[i], k)
@@ -239,7 +239,7 @@ def experiment_2():
                     # print(y_pred, y_test[i][0])
                     res = res + sign(int(y_test[i][0]), int(y_pred))
                 sr = res / len(x_test)
-                msr_per_k[idx] = msr_per_k[idx] + sr/n_folds/len(ks)
+                msr_per_k[idx] = msr_per_k[idx] + sr/n_folds
         
         for idx in range(len(ks)):
             mtime_per_k[idx] = mtime_per_k[idx]/n_folds
