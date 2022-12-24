@@ -152,21 +152,21 @@ def get_most_important_factor(theta):
     return maxheap
 
 def experiment_1():
-    N0 = 100
-    NStride = 100
+    N0 = 10
+    NStride = 4000
     msrs = []
     mstbs = []
     Ns = []
-    lams = [0, 0.1, 0.2]
+    lams = [0]
 
-    for i in range(3):
+    for i in range(2):
         N = N0 + i * NStride
         print("IS Training with ", N, " Samples")
         Ns.append(N)
         x, y = read_dataset(dataset_path, N)
         x = preprocess(x)
         K = 10
-        n_folds = 5
+        n_folds = 3
         kf = KFold(n_splits=n_folds, shuffle=True)
         Dx = x.shape[1]
         Dy = y.shape[1]
@@ -192,8 +192,8 @@ def experiment_1():
         mstbs.append(mstb_p_lam)
 
     
-    # most_important_factors = get_most_important_factor(theta)
-    # print(most_important_factors)
+    most_important_factors = get_most_important_factor(theta)
+    print(most_important_factors)
     postprocess_1(Ns, msrs, mstbs, lams)
 
 def postprocess_2(Ns, ks, msrs, mtimes, kdmtimes):
@@ -221,7 +221,7 @@ def postprocess_2(Ns, ks, msrs, mtimes, kdmtimes):
     plt.show()
 
 def experiment_2():
-    N0 = 100
+    N0 = 900
     NStride = 400
     msrs = []
     mtimes = []
@@ -230,14 +230,14 @@ def experiment_2():
     ks = [1, 3, 5, 7, 9, 11, 17, 29]
     # ks = [1, 3]
 
-    for i in range(5):
+    for i in range(2):
         N = N0 + i * NStride
         print("IS Training with ", N, " Samples")
         Ns.append(N)
         x, y = read_dataset(dataset_path, N)
         x = preprocess(x)
         K = 10
-        n_folds = 5
+        n_folds = 3
         kf = KFold(n_splits=n_folds, shuffle=True)
         Dx = x.shape[1]
         Dy = y.shape[1]
@@ -299,5 +299,5 @@ def debug_data(x, y):
     plt.show()
 
 if __name__ == "__main__":
-    # experiment_1()
-    experiment_2()
+    experiment_1()
+    # experiment_2()

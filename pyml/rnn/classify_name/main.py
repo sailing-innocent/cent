@@ -93,8 +93,6 @@ class RNN(nn.Module):
 
 n_hidden = 128
 rnn = RNN(n_letters, n_hidden, n_categories)
-# rnn = nn.RNN(n_letters, n_hidden, n_categories)
-
 
 """
 input = letterToTensor('A')

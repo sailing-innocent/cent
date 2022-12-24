@@ -73,7 +73,7 @@ def logistic_regression_regu(x_samples, y_samples, K, lam = 0.1):
     N = x_samples.shape[0]
     D = x_samples.shape[1]
     theta = np.zeros([K,D], dtype=float)
-    alpha = 0.005
+    alpha = 0.001
     nsteps = 2000
     for step in range(nsteps):
         # calculate derivative
@@ -85,7 +85,6 @@ def logistic_regression_regu(x_samples, y_samples, K, lam = 0.1):
             # print(theta)
         if (step % 100 == 0):
             print("step: ", step, "\n deri: ", deri)
-
         willBreak = True
         for de in deri:
             if de > 0.05 or de < -0.05:
