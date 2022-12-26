@@ -8,5 +8,7 @@ __pycache__
 *.so
 *.dll
 *.pdb
+*.png
+*.jpg
 bind
 data
