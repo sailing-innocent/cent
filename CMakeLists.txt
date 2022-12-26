@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
-project(cent VERSION 0.1.0)
+project(cent VERSION 0.1.1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -8,11 +8,10 @@ set(BUILD_SHARED_LIBS OFF)
 
 ######################## BUILD TARGETS ###########################
 
-set(VISBED TRUE)
+set(VISBED FALSE)
+set(TERRAIN TRUE)
 
 ##################################################################
-
-
 ###################### DEPS DEFINITION ###########################
 
 set(MAIN_INCLUDES "E:/includes")
@@ -37,4 +36,9 @@ set(GLAD_SOURCE "E:/source/glad/glad.c")
 #################################################################
 if (${VISBED})
     add_subdirectory(visbed)
+endif()
+
+#################################################################
+if (${TERRAIN})
+    add_subdirectory(terrain)
 endif()
