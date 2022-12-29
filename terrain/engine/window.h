@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "common/camera.h"
+#include "utils/camera.h"
 #include <iostream>
 
 class Window
