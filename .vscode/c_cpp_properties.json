@@ -4,14 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "D:/repos/sail/include",
-                "D:/repos/ing/include",
-                "D:/repos/cent/testbed/include",
-                "${workspaceFolder}/testbed/include",
-                "E:/includes",
-                "E:/libs/eigen",
-                "E:/source/imgui",
-                "E:/sdk/Vulkan/Include"
+                "D:/includes",
             ],
             "defines": [
                 "_DEBUG",

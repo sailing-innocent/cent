@@ -4,21 +4,21 @@ import taichi as ti
 
 ti.init(arch=ti.gpu)
 
-img = cv.imread("E:/assets/images/icon.jpg")
+img = cv.imread("D:/data/images/river_001_1920x1080.jpg")
 SEG_PIXELS = 50
 UPSIZE_RATIO = 10
 img_seg = img[0:SEG_PIXELS,0:SEG_PIXELS]
-upsized_img = np.ones([SEG_PIXELS*UPSIZE_RATIO, SEG_PIXELS*UPSIZE_RATIO, 3], dtype=np.uint8)
+upsized_img = np.ones([SEG_PIXELS*UPSIZE_RATIO, SEG_PIXELS*UPSIZE_RATIO, 3], dtype=np.float64)
 for i in range(SEG_PIXELS):
     for j in range(SEG_PIXELS):
         for itx in range(UPSIZE_RATIO):
             for ity in range(UPSIZE_RATIO):
                 upsized_img[i * UPSIZE_RATIO +itx][j * UPSIZE_RATIO+ity] = img_seg[i][j]
 
-width = 512
-height = 512
+width = 1920
+height = 1080
 
-coord = np.ones([width, height, 3], dtype=np.uint8)
+coord = np.ones([width, height, 3], dtype=np.float64)
 coord = coord * 255 # plain white
 
 origin = np.array([width/2, height/2])
@@ -109,7 +109,7 @@ def grid_to_draw(i, j, max_step, grid):
             in_grid = True
     return in_grid
 
-coord_ti = ti.Vector.field(3, ti.u8, shape=(width, height))
+coord_ti = ti.Vector.field(3, ti.f64, shape=(width, height))
 coord_ti.from_numpy(coord)
 
 @ti.func
@@ -119,7 +119,7 @@ def circle_to_draw(i, j, centx, centy, r, width):
 
 @ti.kernel
 def draw(t: int):
-    black = ti.Vector([0,0,0], ti.u8)
+    black = ti.Vector([0,0,0], ti.f64)
     for i, j in coord_ti:
         if line_to_draw(i, j, origin_ti, x_end_ti, max_line_weight):
             coord_ti[i,j] = black
