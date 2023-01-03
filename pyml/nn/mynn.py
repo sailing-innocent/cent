@@ -1,103 +1,109 @@
 import numpy as np 
-from activator import * 
 import matplotlib.pyplot as plt
 
-# neural network is definitely a perceptron, but it changes the step function to sigmoid function
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def deriv_sigmoid(x):
+    fx = sigmoid(x)
+    return fx*(1-fx)
+
+def mse_loss(y_true, y_pred):
+    return ((y_true - y_pred) ** 2).mean()
 
 class Neuron:
-    def __init__(self, layerid = 0, nodeid = 0, input_dim = 0):
-        self.layerid = layerid
-        self.nodeid = nodeid
-        self.weight = np.zeros(input_dim, dtype=float)
-        self.bias = 0
-        self.output = 0
-        self.delta = 0
+    def __init__(self, weights, bias):
+        self.weights = weights 
+        self.bias = bias
 
-    def __str__(self):
-        return "the node {},{} has weight: {} and bias {}".format(self.layerid, self.nodeid, self.weight, self.bias)
+    def feedforward(self, x):
+        return sigmoid(np.dot(self.weights, x) + self.bias)
 
-    def set_output(self, output):
-        self.output = output
+class NeuralNetwork:
+    def __init__(self):
+        self.w1 = np.random.normal()
+        self.w2 = np.random.normal()
+        self.w3 = np.random.normal()
+        self.w4 = np.random.normal()
+        self.w5 = np.random.normal()
+        self.w6 = np.random.normal()
 
-class Layer:
-    def __init__(self, layerid = 0, input_dim = 0, n_nodes = 0):
-        self.layerid = layerid
-        self.n_nodes = n_nodes
-        self.nodes = []
+        self.b1 = np.random.normal()
+        self.b2 = np.random.normal()
+        self.b3 = np.random.normal()
+        
+        weights = np.array([0,1])
+        bias = 0
 
-    def init_nodes(self):
-        pass
+        self.h1 = Neuron(weights, bias)
+        self.h2 = Neuron(weights, bias)
+        self.o1 = Neuron(weights, bias)
+
+    def feedforward(self, x):
+        out_h1 = sigmoid(self.w1 * x[0] + self.w2 * x[1] + self.b1)
+        out_h2 = sigmoid(self.w3 * x[0] + self.w4 * x[1] + self.b2)
+        out_o1 = sigmoid(self.w5 * out_h1 + self.w6 * out_h2 + self.b3)
+        return out_o1
     
-    def set_output(self, output):
-        for i in range(n_nodes):
-            self.nodes[i].set_output(output[i])
+    def train(self, all_x, all_y_true):
+        learn_rate = 0.1
+        epoches = 1000
+        for epoch in range(epoches):
+            for x, y_true in zip(all_x, all_y_true):
+                sum_h1 = self.w1 * x[0] + self.w2 * x[1] + self.b1
+                h1 = sigmoid(sum_h1)
 
-    def forward(self, x):
-        pass 
+                sum_h2 = self.w3 * x[0] + self.w4 * x[1] + self.b2
+                h2 = sigmoid(sum_h2)
 
-    def backprop()
+                sum_o1 = self.w5 * h1 + self.w6 * h2 + self.b3
+                o1 = sigmoid(sum_o1)
 
-class Network:
-    def __init__(self, struct=[1,1]):
-        self.input_dim = struct[0]
-        self.n_layers = len(struct)
-        self.output_dim = struct[nlayers-1]
-        self.layers = []
-        # create input layer
-        for i in range(1, self.n_layers-1):
-            # create hidden layer
-            pass
+                y_pred = o1
 
-        # create output layer
-    
-    def create_input_layer(self):
-        pass
+                d_L_d_ypred = -2 * (y_true - y_pred)
+                d_ypred_d_sumo1 = deriv_sigmoid(sum_o1)
+                d_ypred_d_w5 = h1 * d_ypred_d_sumo1
+                d_ypred_d_w6 = h2 * d_ypred_d_sumo1
+                d_ypred_d_b3 = d_ypred_d_sumo1
 
-    def create_output_layer(self):
-        pass
-    
-    def create_hidden_layer(self, layerid):
-        pass
-    
-    def __str__(self):
-        return "this network gets intput {} dim vector and output {} dim vector".format(self.input_dim, self.output_dim)
+                d_ypred_d_h1 = self.w5 * d_ypred_d_sumo1
+                d_ypred_d_h2 = self.w6 * d_ypred_d_sumo1
 
-    def forward(self, x):
-        # input
-        input_layer = layers[0]
-        input_layer.set_output(x)
-        for i in range(1, self.n_layers):
-            prev = layers[i-1].output()
-            layers[i].forward(prev)
-        # get the output from the output of layers[self.n_layers-1].output
-        return self.layers[self.n_layers-1].output()
+                # Neuron h1
 
-    def train(self, x_trains, y_trains, alpha = 0.01):
-        # train for samples 
-        N = x_train.shape[0]
-        for i in range(N):
-            y_pred = self.forward(x_trains[i])
-            self.backprop(y_pred, y_trains[i])
+                d_h1_d_sumh1 = deriv_sigmoid(sum_h1)
+                d_h1_d_w1 = x[0] * d_h1_d_sumh1
+                d_h1_d_w2 = x[1] * d_h1_d_sumh1
+                d_h1_d_b1 = d_h1_d_sumh1
 
-    def backprop(self):
-        pass
-    
-    def test(self, x_tests, y_tests):
-        # test the 
-        pass
+                # Neuron h2
+                d_h2_d_sumh2 = deriv_sigmoid(sum_h2)
+                d_h2_d_w3 = x[0] * d_h2_d_sumh2
+                d_h2_d_w4 = x[1] * d_h2_d_sumh2
+                d_h2_d_b2 = d_h2_d_sumh2
 
-    def debug(self):
-        pass
+                ## ------------------ UPDATE ------------------------------
 
+                # Neuron h1
+                self.w1 = self.w1 - learn_rate * d_L_d_ypred * d_ypred_d_h1 * d_h1_d_w1
+                self.w2 = self.w2 - learn_rate * d_L_d_ypred * d_ypred_d_h1 * d_h1_d_w2
+                self.b1 = self.b1 - learn_rate * d_L_d_ypred * d_ypred_d_h1 * d_h1_d_b1
 
+                # Neuron h2
+                self.w3 = self.w3 - learn_rate * d_L_d_ypred * d_ypred_d_h2 * d_h2_d_w3
+                self.w4 = self.w4 - learn_rate * d_L_d_ypred * d_ypred_d_h2 * d_h2_d_w3
+                self.b2 = self.b2 - learn_rate * d_L_d_ypred * d_ypred_d_h2 * d_h2_d_b2
 
-if __name__ == "__main__":
-    # print(sigmoid(2))
+                # Neuron o1
+                self.w5 = self.w5 - learn_rate * d_L_d_ypred * d_ypred_d_w5
+                self.w4 = self.w6 - learn_rate * d_L_d_ypred * d_ypred_d_w6
+                self.b2 = self.b3 - learn_rate * d_L_d_ypred * d_ypred_d_b3
 
+        
+            # --- Calculate total loss at the end of each epoch
+            if epoch % 10 == 0:
+                y_preds = np.apply_along_axis(self.feedforward, 1, all_x)
+                loss = mse_loss(all_y_true, y_preds)
+                print("Epoch %d loss: %.3f" % (epoch, loss))
 
-    fig, ax = plt.subplots()
-    x = np.linspace(-5.0, 5.0, 30)
-
-
-    plt.plot(x, y)
-    plt.show()
