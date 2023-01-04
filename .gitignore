@@ -12,3 +12,4 @@ __pycache__
 *.jpg
 bind
 data
+datasets
