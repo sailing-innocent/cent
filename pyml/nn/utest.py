@@ -23,7 +23,7 @@ def show_simple_network():
 def show_mse_loss():
     y_true = np.array([0,1,1,0])
     y_pred = np.array([0,0,0,0])
-    print(mse_error(y_true, y_pred)) # 0.5
+    print(mse_loss(y_true, y_pred)) # 0.5
 
 
 def preprocess(x):
