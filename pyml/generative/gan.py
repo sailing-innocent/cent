@@ -2,11 +2,14 @@ import argparse
 import os 
 import numpy as np 
 import torchvision.transforms as transforms
+from torchvision.utils import save_image
 from torch.utils.data import DataLoader
 from torchvision import datasets 
 from torch.autograd import Variable 
 import torch.nn as nn
 import torch 
+
+# 反正确实能看出来是数字了，不过loss看起来倒是没怎么下降的样子
 
 os.makedirs("./images/gan/", exist_ok=True)
 os.makedirs("./save/gan", exist_ok=True)
@@ -17,14 +20,17 @@ parser.add_argument("--n-epoches", type=int, default=50, help="number of epoches
 parser.add_argument("--batch-size", type=int, default=64, help="size of the batches")
 parser.add_argument("--lr", type=float, default=0.0002, help="adam: learning rate")
 parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of the first order momentum of gradient")
-parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of the second order momentum of gradient")
+parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of the first order momentum of gradient")
 parser.add_argument("--latent_dim", type=int, default=100, help="dimensionality of the latent space")
 parser.add_argument("--img_size", type=int, default=28, help="size of each image dimension")
 parser.add_argument("--channels", type=int, default=1, help="number of image channels")
+parser.add_argument("--sample_interval", type=int, default=500, help="interval between image samples")
 
 opt = parser.parse_args()
 
 print(opt)
+
+
 
 img_shape = (opt.channels, opt.img_size, opt.img_size)
 img_area = np.prod(img_shape) # the production of multiplication of all items in group
@@ -80,7 +86,7 @@ class Generator(nn.Module):
             return layers
 
         self.model = nn.Sequential(
-            *block(opt.latent_dim, 128, normalize=False)
+            *block(opt.latent_dim, 128, normalize=False),
             *block(128, 256),
             *block(256, 512),
             *block(512, 1024),
@@ -134,4 +140,25 @@ for epoch in range(opt.n_epoches):
 
         ## Train Generator
 
+        z = Variable(torch.randn(imgs.size(0), opt.latent_dim)).cuda()
+        fake_img = generator(z)
+        output = discriminator(fake_img)
 
+        loss_G = criterion(output, real_label)
+        optimizer_G.zero_grad()
+        loss_G.backward()
+        optimizer_G.step()
+
+        if (i+1)%100 == 0:
+            print(
+                "[Epoch {}/{}] [Batch {}/{}] [D loss: {}] [G loss: {}] [D real: {}] [D fake: {}]".format(
+                    epoch, opt.n_epoches, i, len(dataloader), loss_D.item(), loss_G.item(), real_scores.data.mean(), fake_scores.data.mean()
+                )
+            )
+
+        batches_done = epoch * len(dataloader) + i
+        if (batches_done % opt.sample_interval == 0):
+            save_image(fake_img.data[:25], "./images/gan/{}.png".format(batches_done), nrow=5, normalize=True)
+
+torch.save(generator.state_dict(), './save/gan/generator.pth')
+torch.save(discriminator.state_dict(), './save/gan/discriminator.pth')

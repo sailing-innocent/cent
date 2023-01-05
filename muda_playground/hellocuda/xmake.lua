@@ -1,13 +1,14 @@
+includes("D:/repos/cent/external/muda")
 set_languages("cxx17")
 add_rules("mode.debug", "mode.release")
 
 target("hellocuda")
     set_kind("binary")
-
-    add_headerfiles("D:/repos/cent/external/muda/src/**.h")
-    add_headerfiles("D:/repos/cent/external/muda/external/default/**")
-    add_includedirs("D:/repos/cent/external/muda/src/core/", {public = true})
-    add_includedirs("D:/repos/cent/external/muda/external/default", {public = true})
+    add_deps("muda-full")
+    -- add_headerfiles("D:/repos/cent/external/muda/src/**.h")
+    -- add_headerfiles("D:/repos/cent/external/muda/external/default/**")
+    -- add_includedirs("D:/repos/cent/external/muda/src/core/", {public = true})
+    -- add_includedirs("D:/repos/cent/external/muda/external/default", {public = true})
     add_files("src/*.cu")
 
     -- generate relocatable device code for device linker of dependents.
@@ -18,16 +19,16 @@ target("hellocuda")
 
     -- generate SASS code for SM architecture of current host
     add_cugencodes("native")
-    add_cuflags("--extended-lambda", {public = true}) -- must be set for muda paradigm
-    add_cuflags("--expt-relaxed-constexpr", {public = true})
+    -- add_cuflags("--extended-lambda", {public = true}) -- must be set for muda paradigm
+    -- add_cuflags("--expt-relaxed-constexpr", {public = true})
     -- generate PTX code for the virtual architecture to guarantee compatibility
-    add_cugencodes("compute_35")
+    -- add_cugencodes("compute_35")
 
     -- -- generate SASS code for each SM architecture
     -- add_cugencodes("sm_35", "sm_37", "sm_50", "sm_52", "sm_60", "sm_61", "sm_70", "sm_75")
 
     -- -- generate PTX code from the highest SM architecture to guarantee forward-compatibility
-    -- add_cugencodes("compute_75")
+    add_cugencodes("compute_75")
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
