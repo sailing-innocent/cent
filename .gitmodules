@@ -1,3 +1,6 @@
 [submodule "external/muda"]
 	path = external/muda
 	url = https://github.com/sailing-innocent/muda.git
+[submodule "reimpls/instant-ngp"]
+	path = reimpls/instant-ngp
+	url = git@github.com:sailing-innocent/instant-ngp.git

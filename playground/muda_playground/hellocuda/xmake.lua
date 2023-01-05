@@ -1,0 +1,10 @@
+includes("D:/repos/cent/external/muda")
+set_languages("cxx17")
+add_rules("mode.debug", "mode.release")
+
+target("hellocuda")
+    set_kind("binary")
+    add_deps("muda-full")
+    add_files("src/*.cu")
+    add_cugencodes("native")
+    add_cugencodes("compute_75")
