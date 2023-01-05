@@ -9,7 +9,7 @@ import cv2 as cv
 import numpy as np
 
 training_data = datasets.FashionMNIST(
-    root="data",
+    root="D:/data/datasets/fmnist",
     train=True,
     download=True,
     transform=ToTensor(),
@@ -103,12 +103,13 @@ def main():
     torch.save(model.state_dict(), "model.pth")
     print("Saved to model.pth")
 
-if __name__ == "__main__":
+def debug():
     img = test_data[0][0][0].numpy() * 255
     img = img.astype(np.uint8)
-    
-    print(img.size)
-    print(img)
     cv.imshow("img", img)
     cv.waitKey(0)
     cv.destroyAllWindows()
+
+if __name__ == "__main__":
+    # debug()
+    main()

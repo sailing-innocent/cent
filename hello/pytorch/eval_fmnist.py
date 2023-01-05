@@ -7,7 +7,7 @@ from torchvision.transforms import ToTensor
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 test_data = datasets.FashionMNIST(
-    root="data",
+    root="D:/data/datasets/fmnist",
     train=False,
     download=True,
     transform=ToTensor()
@@ -54,4 +54,3 @@ with torch.no_grad():
     print(pred)
     predicted, actual = classes[pred[0].argmax(0)], classes[y]
     print(f'Predicted: "{predicted}", Actual: "{actual}"')
-            
