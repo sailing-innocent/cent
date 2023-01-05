@@ -5,6 +5,10 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "D:/includes",
+                "D:/repos/sail/include",
+                "D:/repos/ing/include",
+                "D:/repos/cent/external/muda/src/core",
+                "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/include",
             ],
             "defines": [
                 "_DEBUG",
