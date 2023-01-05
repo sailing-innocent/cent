@@ -47,7 +47,7 @@ dataloader = DataLoader(
 ## DISCRIMINATOR ##
 ## Flat the image 28x28=784, and through MLP, with k = 0.2 LeakyReLU
 ## Finally connect with sigmoid to fetch a posibility from 0 to 1
-class Discriminator(nn.MOdule):
+class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator,self).__init__()
         self.model = nn.Sequential(
@@ -65,4 +65,73 @@ class Discriminator(nn.MOdule):
         return validity
 
 ## GENERATOR ##
-## input 
+## input an 100d 0-1 Gauss Distribution, Then use one layer of Linear to project it to 256d
+## Through LeakyReLU, then a Linear, then a LeakyReLU
+## Then a linear to 784d, finally tanh to generate the fake image distribution
+
+class Generator(nn.Module):
+    def __init__(self):
+        super(Generator, self).__init__()
+        def block(in_feat, out_feat, normalize=True):
+            layers = [nn.Linear(in_feat, out_feat)]
+            if normalize:
+                layers.append(nn.BatchNorm1d(out_feat, 0.8)) # 正则化
+            layers.append(nn.LeakyReLU(0.2, inplace=True))
+            return layers
+
+        self.model = nn.Sequential(
+            *block(opt.latent_dim, 128, normalize=False)
+            *block(128, 256),
+            *block(256, 512),
+            *block(512, 1024),
+            nn.Linear(1024, img_area),
+            nn.Tanh()
+        )
+    
+    def forward(self, z):
+        imgs = self.model(z)
+        imgs = imgs.view(imgs.size(0), *img_shape)
+        return imgs
+
+generator = Generator()
+discriminator = Discriminator()
+
+criterion = torch.nn.BCELoss()
+
+optimizer_G = torch.optim.Adam(generator.parameters(), lr=opt.lr, betas=(opt.b1, opt.b2))
+optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=opt.lr, betas=(opt.b1, opt.b2))
+
+if cuda:
+    generator = generator.cuda()
+    discriminator = discriminator.cuda()
+    criterion = criterion.cuda()
+
+## Training 
+
+for epoch in range(opt.n_epoches):
+    for i, (imgs, _) in enumerate(dataloader):
+        ## Train Discriminator
+        imgs = imgs.view(imgs.size(0), -1)
+        real_img = Variable(imgs).cuda()
+        real_label = Variable(torch.ones(imgs.size(0), 1)).cuda()
+        fake_label = Variable(torch.zeros(imgs.size(0), 1)).cuda()
+
+        real_out = discriminator(real_img)
+        loss_real_D = criterion(real_out, real_label)
+        real_scores = real_out
+
+        z = Variable(torch.randn(imgs.size(0), opt.latent_dim)).cuda() # randomly generate some noise
+        fake_img = generator(z).detach()
+        fake_out = discriminator(fake_img)
+        loss_fake_D = criterion(fake_out, fake_label)
+        fake_scores = fake_out
+
+        # Loss
+        loss_D = loss_real_D + loss_fake_D
+        optimizer_D.zero_grad()
+        loss_D.backward() # backprop loss
+        optimizer_D.step() # update parameter
+
+        ## Train Generator
+
+
