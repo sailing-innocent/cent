@@ -1,4 +1,4 @@
-includes("D:/repos/cent/external/muda")
+includes("D:/repos/muda")
 set_languages("cxx17")
 add_rules("mode.debug", "mode.release")
 
