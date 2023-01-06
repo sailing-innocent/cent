@@ -30,12 +30,9 @@ constexpr const char* cuthead(const char *p) {
 // __CUDA_ARCH__ 520 // 52 系列显卡
 // set(CMAKE_CUDA_ARCHITECTURE 52;75;86) 但是不会报错，编译会变慢，可执行文件也会变大
 
-
-
 int main() {
     dim3 BLOCK_DIM = dim3(1,1,1);
     dim3 GRID_DIM = dim3(1,1,1);
-
     int* pret;
     cudaMalloc(&pret, sizeof(int));
     kernel<<<GRID_DIM,BLOCK_DIM>>>(pret); // synchroize, will not return on time
