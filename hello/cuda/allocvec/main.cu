@@ -20,6 +20,15 @@ struct CudaAllocator {
     void deallocate(T *ptr, size_t size = 0) {
         cudaFree(ptr);
     }
+
+    // plain old data
+    template <class ...Args>
+    void constructor(T *p, Args &&...args) {
+        if constexpr (!(sizeof...(Args) == 0 && std::is_pod_v<T>))
+        {
+            ::new((void*)p) T(std::forward<Args>(args)...);
+        }
+    }
 };
 
 __global__ void kernel(int *arr, int n) {
