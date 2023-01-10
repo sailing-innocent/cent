@@ -14,12 +14,12 @@ def at(t, origin, dir):
 def hit_sphere(center, radius, ray_org, ray_dir):
     oc = ray_org - center
     a = tm.dot(ray_dir, ray_dir)
-    b = 2.0 * tm.dot(oc, ray_dir)
+    half_b = tm.dot(oc, ray_dir)
     c = tm.dot(oc, oc) - radius * radius
-    discriminate = b * b - 4 * a * c
+    discriminate = half_b * half_b - a * c
     root = -1.0
     if (discriminate > 0):
-        root = (-b-tm.sqrt(discriminate)) / (2.0 * a)
+        root = (-half_b-tm.sqrt(discriminate)) / a
     return root
 
 
