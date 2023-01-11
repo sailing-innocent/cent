@@ -2,7 +2,7 @@ import taichi as ti
 
 
 @ti.func
-def at(t, origin, dir):
+def at(origin, dir, t):
     return origin + t * dir
 
 

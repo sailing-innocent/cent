@@ -28,9 +28,9 @@ def hit_sphere(center, radius, ray_org, ray_dir, t_min, t_max):
     if (hit):
         sqrtd = tm.sqrt(discriminate)
 
-        root = (-half_b-sqrtd) / a
+        root = (-half_b - sqrtd) / a
         if (root < t_min or root > t_max):
-            root = (-half_b+sqrtd) / a
+            root = (-half_b + sqrtd) / a
             if (root < t_min or root > t_max):
                 hit = False
     return hit, root
@@ -53,9 +53,6 @@ class World:
         for i in range(self.n):
             self.radius[i] = self.spheres[i].radius
             self.center[i] = self.spheres[i].center
-        print("current spheres:")
-        print(self.center)
-        print(self.radius)
         del self.spheres
 
     @ti.func
@@ -63,7 +60,7 @@ class World:
         hit_anything = False
         t_min = 0.00001
         closest_so_far = 999999999.9
-        hit_index = 0
+        hit_index = -1
 
         # init p and n
         p = tm.vec3(0, 0, 0)
@@ -74,15 +71,16 @@ class World:
             hit, t = hit_sphere(
                 self.center[i], self.radius[i], ray_org, ray_dir, t_min, closest_so_far)
             if hit:
-                hit_anything = True
                 if (closest_so_far > t):
+                    hit_anything = True
                     closest_so_far = t
                     hit_index = i
 
         if hit_anything:
             p = ray.at(ray_org, ray_dir, closest_so_far)
-            n = (p - self.center[hit_index] / self.radius[hit_index])
+            n = (p - self.center[hit_index]) / self.radius[hit_index]
             front_facing = is_front_facing(ray_dir, n)
-            n = n if front_facing else -n
+            if not front_facing:
+                n = -n
 
         return hit_anything, p, n, front_facing, hit_index
