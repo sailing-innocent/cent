@@ -1,5 +1,11 @@
 import taichi as ti
 import taichi.math as tm
+import ray
+
+
+@ti.func
+def is_front_facing(ray_dir, out_normal):
+    return tm.dot(ray_dir, out_normal) < 0.0
 
 
 class Sphere:
@@ -39,6 +45,19 @@ class World:
         sphere.id = len(self.spheres)
         self.spheres.append(sphere)
 
+    def commit(self):
+        self.n = len(self.spheres)
+        self.radius = ti.field(ti.f32, shape=(self.n))
+        self.center = ti.Vector.field(n=3, dtype=ti.f32, shape=(self.n))
+
+        for i in range(self.n):
+            self.radius[i] = self.spheres[i].radius
+            self.center[i] = self.spheres[i].center
+        print("current spheres:")
+        print(self.center)
+        print(self.radius)
+        del self.spheres
+
     @ti.func
     def hit_all(self, ray_org, ray_dir):
         hit_anything = False
@@ -46,6 +65,24 @@ class World:
         closest_so_far = 999999999.9
         hit_index = 0
 
+        # init p and n
+        p = tm.vec3(0, 0, 0)
+        n = tm.vec3(1, 0, 0)
+        front_facing = True
         # TODO bvh tree
-        test_sphere = self.spheres[0]
-        hit, root = hit_sphere(test_sphere)
+        for i in range(self.n):
+            hit, t = hit_sphere(
+                self.center[i], self.radius[i], ray_org, ray_dir, t_min, closest_so_far)
+            if hit:
+                hit_anything = True
+                if (closest_so_far > t):
+                    closest_so_far = t
+                    hit_index = i
+
+        if hit_anything:
+            p = ray.at(ray_org, ray_dir, closest_so_far)
+            n = (p - self.center[hit_index] / self.radius[hit_index])
+            front_facing = is_front_facing(ray_dir, n)
+            n = n if front_facing else -n
+
+        return hit_anything, p, n, front_facing, hit_index

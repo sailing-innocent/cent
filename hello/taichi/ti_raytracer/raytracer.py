@@ -1,35 +1,17 @@
 import taichi as ti
 import taichi.math as tm
 import ray
+import world
 
 ti.init(arch=ti.gpu)
 
 
 @ti.func
-def at(t, origin, dir):
-    return origin + t * dir
-
-
-@ti.func
-def hit_sphere(center, radius, ray_org, ray_dir):
-    oc = ray_org - center
-    a = tm.dot(ray_dir, ray_dir)
-    half_b = tm.dot(oc, ray_dir)
-    c = tm.dot(oc, oc) - radius * radius
-    discriminate = half_b * half_b - a * c
-    root = -1.0
-    if (discriminate > 0):
-        root = (-half_b-tm.sqrt(discriminate)) / a
-    return root
-
-
-@ti.func
-def ray_color(ray_org, ray_dir):
+def ray_color(hittable_world, ray_org, ray_dir):
     color = tm.vec3(1, 0, 0)
-    t = hit_sphere(tm.vec3(0, 0, -1), 0.5, ray_org, ray_dir)
-    if (t > 0.0):
-        N = tm.normalize(at(t, ray_org, ray_dir)-tm.vec3(0, 0, -1))
-        color = 0.5 * tm.vec3(N.x + 1, N.y + 1, N.z + 1)
+    hit, p, N, front_facing, id = hittable_world.hit_all(ray_org, ray_dir)
+    if (hit):
+        color = 0.5 * (N + tm.vec3(1, 1, 1))
     else:
         unit_dir = tm.normalize(ray_dir)
         t = 0.5 * (unit_dir.y + 1.0)
@@ -57,6 +39,10 @@ class tracer:
 
         self.rays = ray.Rays(self.image_width, self.image_height)
         # self.hitRecords = HitRecords()
+        self.world = world.World()
+        self.world.add_sphere(world.Sphere(tm.vec3(0, 0, -1), 0.5))
+        self.world.add_sphere(world.Sphere(tm.vec3(0, -100.5, -1), 100))
+        self.world.commit()
 
     @ti.func
     def write_color(self, i, j, color):
@@ -70,7 +56,7 @@ class tracer:
             self.rays.set(i, j, self.origin, self.ll_corner + u *
                           self.horizental + v * self.vertical - self.origin)
             ray_org, ray_dir = self.rays.get_od(i, j)
-            color = ray_color(ray_org, ray_dir)
+            color = ray_color(self.world, ray_org, ray_dir)
             self.write_color(i, j, color)
 
     def save(self, figpath="result.jpg"):

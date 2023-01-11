@@ -1,6 +1,11 @@
 import taichi as ti
 
 
+@ti.func
+def at(t, origin, dir):
+    return origin + t * dir
+
+
 @ti.data_oriented
 class Rays:
     def __init__(self, x, y):
