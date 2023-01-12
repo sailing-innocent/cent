@@ -2,6 +2,7 @@ import taichi as ti
 import taichi.math as tm
 import ray
 import world
+import camera
 
 ti.init(arch=ti.gpu)
 
@@ -21,27 +22,16 @@ def ray_color(hittable_world, ray_org, ray_dir):
 
 @ti.data_oriented
 class tracer:
-    def __init__(self):
+    def __init__(self, _world=world.World()):
         self.aspect_ratio = 16.0 / 9.0
         self.image_width = 400
         self.image_height = (int)(self.image_width/self.aspect_ratio)
         self.pixels = ti.Vector.field(
             n=3, dtype=ti.f32, shape=(self.image_width, self.image_height))
 
-        self.viewport_height = 2.0
-        self.viewport_width = self.viewport_height * self.aspect_ratio
-        self.focal_length = 1.0
-        self.origin = tm.vec3(0, 0, 0)
-        self.horizental = tm.vec3(self.viewport_width, 0, 0)
-        self.vertical = tm.vec3(0, self.viewport_height, 0)
-        self.ll_corner = self.origin - self.horizental/2 - \
-            self.vertical/2 - tm.vec3(0, 0, self.focal_length)
-
+        self.camera = camera.Camera()
         self.rays = ray.Rays(self.image_width, self.image_height)
-        # self.hitRecords = HitRecords()
-        self.world = world.World()
-        self.world.add_sphere(world.Sphere(tm.vec3(0, 0, -1), 0.5))
-        self.world.add_sphere(world.Sphere(tm.vec3(0, -100.5, -1), 100))
+        self.world = _world
         self.world.commit()
 
     @ti.func
@@ -53,21 +43,10 @@ class tracer:
         for i, j in self.pixels:
             u = i / (self.image_width - 1)
             v = j / (self.image_height - 1)
-            self.rays.set(i, j, self.origin, self.ll_corner + u *
-                          self.horizental + v * self.vertical - self.origin)
-            ray_org, ray_dir = self.rays.get_od(i, j)
+            ray_org, ray_dir = self.camera.get_ray(u, v)
+            self.rays.set(i, j, ray_org, ray_dir)
             color = ray_color(self.world, ray_org, ray_dir)
             self.write_color(i, j, color)
 
     def save(self, figpath="result.jpg"):
         ti.tools.imwrite(self.pixels.to_numpy(), figpath)
-
-
-def debug():
-    tr = tracer()
-    tr.render()
-    tr.save()
-
-
-if __name__ == "__main__":
-    debug()
