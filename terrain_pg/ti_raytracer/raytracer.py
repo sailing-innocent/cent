@@ -23,14 +23,13 @@ def ray_color(hittable_world, ray_org, ray_dir):
 
 @ti.data_oriented
 class tracer:
-    def __init__(self, _world=World()):
+    def __init__(self, _world=World(), _camera=Camera()):
         self.aspect_ratio = 16.0 / 9.0
-        self.image_width = 400
+        self.image_width = 1600
         self.image_height = (int)(self.image_width/self.aspect_ratio)
         self.pixels = ti.Vector.field(
             n=3, dtype=ti.f32, shape=(self.image_width, self.image_height))
-
-        self.camera = Camera()
+        self.camera = _camera
         self.rays = Rays(self.image_width, self.image_height)
         self.world = _world
         self.world.commit()

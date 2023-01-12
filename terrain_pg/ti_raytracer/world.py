@@ -116,7 +116,7 @@ class World:
 
     def local_T_world(self, p):
         # local xyz and world render xzy
-        return tm.vec3(p[0] - 0.5, p[1] - 0.5, p[2] - 1.5)
+        return tm.vec3(p[0], p[1], p[2])
 
     def add_triangle(self, triangle):
         triangle.id = len(self.triangles)
@@ -144,7 +144,7 @@ class World:
         self.tn = len(self.triangles)
         self.tri = ti.Vector.field(n=3, dtype=ti.f32, shape=(self.tn, 3))
         for i in range(self.tn):
-            print(self.triangles[i])
+            # print(self.triangles[i])
             self.tri[i, 0] = self.local_T_world(self.triangles[i].pa)
             self.tri[i, 1] = self.local_T_world(self.triangles[i].pb)
             self.tri[i, 2] = self.local_T_world(self.triangles[i].pc)
@@ -177,6 +177,7 @@ class World:
 
             if hit:
                 # print(ray_dir)
+                # print(n)
                 if (closest_so_far > t):
                     hit_any_triangle = True
                     closest_so_far = t

@@ -2,18 +2,29 @@ import taichi as ti
 import taichi.math as tm
 
 from ti_raytracer.raytracer import tracer
-import ti_raytracer.world as world
+from ti_raytracer.world import World
 from ti_raytracer.camera import Camera
 from scenes.block import Block
+from scenes.terrain import Terrain
+
+import math
+
+
+def sample_func(x, y):
+    return 1 * math.sin(0.25 * (x*x+y*y))
 
 
 def debug():
-    myworld = world.World()
-    block = Block(0.0, 0.0, 0.0, 1, 1, 1)
-    mesh = block.gen_mesh()
+    myworld = World()
+    camera_center = tm.vec3(0.0, 0.0, 12.0)
+    lookat = tm.vec3(0.0, 0.0, -1.0)
+    mycamera = Camera(center=camera_center, lookat=lookat)
+    terrain = Terrain(64, 64, 0.5)
+    terrain.sample(sample_func)
+    mesh = terrain.gen_mesh()
     for tri in mesh.triangles:
         myworld.add_triangle(tri)
-    tr = tracer(myworld)
+    tr = tracer(myworld, mycamera)
     tr.render()
     tr.save()
 

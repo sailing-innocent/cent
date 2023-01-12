@@ -4,7 +4,7 @@ import taichi.math as tm
 from ti_raytracer.raytracer import tracer
 import ti_raytracer.world as world
 from scenes.block import Block
-
+from scenes.terrain import Terrain
 ti.init(arch=ti.gpu)
 
 
@@ -49,5 +49,15 @@ def block_test():
     tr.save()
 
 
+def sample_func(x, y):
+    return -(x*x+y*y)+1
+
+
+def terrain_test():
+    terrain = Terrain()
+    terrain.sample(sample_func)
+
+
 if __name__ == "__main__":
-    triangles_test()
+    # triangles_test()
+    terrain_test()
