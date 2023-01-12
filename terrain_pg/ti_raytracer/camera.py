@@ -35,8 +35,8 @@ class Camera:
         self.focal_length = 1.0
         self.horizental = self.vw * norm(self.horizental)
         self.vertical = self.vh * norm(self.vertical)
-        print(self.horizental)
-        print(self.vertical)
+        # print(self.horizental)
+        # print(self.vertical)
         self.ll_corner = self.origin - self.horizental/2 - \
             self.vertical/2 + self.focal_length * self.principle_dir
 

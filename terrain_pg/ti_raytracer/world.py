@@ -88,7 +88,7 @@ def hit_triangle(pa, pb, pc, ray_org, ray_dir, t_min, t_max):
 
     return hit, t, normal
 
-
+@ti.data_oriented
 class Mesh:
     def __init__(self):
         self.triangles = []
