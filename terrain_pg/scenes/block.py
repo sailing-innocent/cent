@@ -3,7 +3,7 @@ from ti_raytracer.world import Triangle, Mesh
 
 
 def gen_rectangle_mesh(lb, rb, lt, rt, mesh):
-    # print("is generating mesh for lb, lt, rt, rb: ", lb, lt, rt, rb)
+    print("is generating mesh for lb, lt, rt, rb: ", lb, lt, rt, rb)
     trlb = Triangle(lb, rb, lt)
     trrt = Triangle(rt, lt, rb)
     mesh.add_triangle(trlb)
@@ -19,14 +19,14 @@ class Block:
         self.uy = uy
         self.uz = uz
         self.indices = [
-            [0, 0, 0],
-            [0, 1, 0],
-            [1, 1, 0],
-            [1, 0, 0],
             [0, 0, 1],
             [0, 1, 1],
             [1, 1, 1],
             [1, 0, 1],
+            [0, 0, 0],
+            [0, 1, 0],
+            [1, 1, 0],
+            [1, 0, 0],
         ]
         self.planes = [
             [0, 1, 2, 3],  # front

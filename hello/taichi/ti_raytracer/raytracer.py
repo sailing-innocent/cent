@@ -29,7 +29,7 @@ class tracer:
         self.pixels = ti.Vector.field(
             n=3, dtype=ti.f32, shape=(self.image_width, self.image_height))
 
-        self.camera = camera.Camera()
+        self.camera = camera.Camera(self.aspect_ratio)
         self.rays = ray.Rays(self.image_width, self.image_height)
         self.world = _world
         self.world.commit()
